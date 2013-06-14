@@ -1,16 +1,19 @@
 /*
  * CAN Monitor
  *
+ * Author: Michael Neuweiler
+ * Created: 02.06.2013
+ *
  * A small Arduino Due program which enables both CAN buses
- *  and outputs all incoming traffic to the serial bus and
- *  if defined also to an LCD shield.
+ * and outputs all incoming traffic to the serial bus and
+ * if defined also to an LCD shield.
  *
- *  A library for the Due's CAN bus is available here:
- *  https://github.com/collin80/due_can
+ * A library for the Due's CAN bus is available here:
+ * https://github.com/collin80/due_can
  *
- *  For a design of a dual CAN shield, check my blog
- *  http://s80ev.blogspot.ch/2013/05/springtime.html
- *  or http://arduino.cc/forum/index.php/topic,131096.30.html
+ * For a design of a dual CAN shield, check my blog
+ * http://s80ev.blogspot.ch/2013/05/springtime.html
+ * or http://arduino.cc/forum/index.php/topic,131096.30.html
  *
  */
 

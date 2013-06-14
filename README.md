@@ -1,5 +1,5 @@
-CANMonitor
-==========
+CAN Monitor
+===========
 
 An Arduino Due CAN Monitor/Tracer.
 It allows you to trace all messages on one or both CAN buses of the Arduino Due board.
