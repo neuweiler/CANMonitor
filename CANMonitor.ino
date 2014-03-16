@@ -26,26 +26,24 @@
 LiquidCrystal lcd(CFG_LCD_MONITOR_PINS);
 #endif
 
-RX_CAN_FRAME incoming;
-
 /*
  * Output a data package of a bus to the serial port and the LCD shield
  */
-void processData(int busNumber) {
+void processData(int busNumber, CAN_FRAME &frame) {
 
 	Serial.print("CAN");
 	Serial.print(busNumber);
-	Serial.print(": dlc=");
-	Serial.print(incoming.dlc);
-	Serial.print(" fid=");
-	Serial.print(incoming.fid);
-	Serial.print(" id=");
-	Serial.print(incoming.id);
-	Serial.print(" ide=");
-	Serial.print(incoming.ide);
-	Serial.print(" rtr=");
-	Serial.print(incoming.rtr);
-	Serial.print(" data=");
+	Serial.print(": dlc=0x");
+	Serial.print(frame.length, HEX);
+	Serial.print(" fid=0x");
+	Serial.print(frame.fid, HEX);
+	Serial.print(" id=0x");
+	Serial.print(frame.id, HEX);
+	Serial.print(" ide=0x");
+	Serial.print(frame.extended, HEX);
+	Serial.print(" rtr=0x");
+	Serial.print(frame.rtr, HEX);
+	Serial.print(" data=0x");
 
 #ifdef LiquidCrystal_h
 	lcd.setCursor(0, busNumber);
@@ -53,10 +51,10 @@ void processData(int busNumber) {
 
 	for (int i = 0; i < 8; i++) {
 #ifdef LiquidCrystal_h
-		lcd.print(incoming.data[i], HEX);
+		lcd.print(frame.data.bytes[i], HEX);
 #endif
-		Serial.print(incoming.data[i], HEX);
-		Serial.print(",");
+		Serial.print(frame.data.bytes[i], HEX);
+		Serial.print(",0x");
 	}
 	Serial.println();
 }
@@ -72,32 +70,28 @@ void setup()
 #endif
 
 	// Initialize the CAN0 bus
-	CAN.init(SystemCoreClock, CAN_BPS_500K); // set the correct speed here
-	CAN.mailbox_init(0);
-	CAN.mailbox_set_mode(0, CAN_MB_RX_MODE);
-	CAN.mailbox_set_accept_mask(0, 0, false);
-	CAN.mailbox_set_id(0, 0, false);
+	CAN.init(CAN_BPS_500K); // set the correct speed here
+	CAN.setRXFilter(0, 0, 0, false);
 
 	// Initialize the CAN1 bus
-	CAN2.init(SystemCoreClock, CAN_BPS_125K); // set the correct speed here
-	CAN2.mailbox_init(0);
-	CAN2.mailbox_set_mode(0, CAN_MB_RX_MODE);
-	CAN2.mailbox_set_accept_mask(0, 0, false);
-	CAN2.mailbox_set_id(0, 0, false);
+	CAN2.init(CAN_BPS_500K); // set the correct speed here
+	CAN2.setRXFilter(0, 0, 0, false);
 
 	Serial.println("setup complete");
 }
 
 void loop()
 {
+	CAN_FRAME incoming;
+
 	// check for available data on CAN0
-	if (CAN.mailbox_get_status(0) & CAN_MSR_MRDY) {
-		CAN.mailbox_read(0, &incoming);
-		processData(0);
+	if (CAN.rx_avail()) {
+		CAN.get_rx_buff(incoming);
+		processData(0, incoming);
 	}
 	// check for available data on CAN1
-	if (CAN2.mailbox_get_status(0) & CAN_MSR_MRDY) {
-		CAN2.mailbox_read(0, &incoming);
-		processData(1);
+	if (CAN2.rx_avail()) {
+		CAN2.get_rx_buff(incoming);
+		processData(1, incoming);
 	}
 }
